@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Postcraft — content, made for the feed</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#12101C;
+    --surface:#1C1929;
+    --surface-2:#242035;
+    --coral:#FF5C4D;
+    --yellow:#FFC857;
+    --text:#F4F1F8;
+    --muted:#9992AC;
+    --line:#332F45;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{
+    font-family:'Bricolage Grotesque',sans-serif;
+    font-weight:700;
+    letter-spacing:-0.02em;
+  }
+  .wrap{
+    display:grid;
+    grid-template-columns:380px 1fr;
+    min-height:100vh;
+  }
+  @media (max-width:880px){
+    .wrap{grid-template-columns:1fr;}
+  }
+
+  /* ===== LEFT PANEL ===== */
+  .panel{
+    background:var(--surface);
+    border-right:1px solid var(--line);
+    padding:36px 32px;
+    display:flex;
+    flex-direction:column;
+    gap:28px;
+  }
+  .brand{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+  }
+  .brand .mark{
+    width:14px;height:14px;
+    background:var(--coral);
+    border-radius:3px;
+    transform:rotate(45deg);
+    flex-shrink:0;
+  }
+  .brand h1{font-size:22px;}
+  .tagline{
+    color:var(--muted);
+    font-size:14px;
+    line-height:1.5;
+    max-width:280px;
+  }
+
+  .field{display:flex;flex-direction:column;gap:8px;}
+  .field label{
+    font-size:12px;
+    color:var(--muted);
+    font-weight:500;
+  }
+  textarea, input[type=text]{
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:10px;
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    padding:12px 14px;
+    resize:none;
+    outline:none;
+    transition:border-color .15s ease;
+  }
+  textarea:focus, input[type=text]:focus{border-color:var(--coral);}
+  textarea{min-height:88px;}
+
+  .vibe-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+  }
+  .vibe-btn{
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    color:var(--text);
+    border-radius:10px;
+    padding:10px 12px;
+    font-size:13px;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+    text-align:left;
+    transition:all .15s ease;
+  }
+  .vibe-btn:hover{border-color:#4a4460;}
+  .vibe-btn.active{
+    background:linear-gradient(135deg,var(--coral),#ff8a4d);
+    border-color:transparent;
+    color:#1a0e08;
+    font-weight:600;
+  }
+
+  .generate-btn{
+    margin-top:auto;
+    background:var(--coral);
+    color:#1a0e08;
+    border:none;
+    border-radius:10px;
+    padding:15px 20px;
+    font-size:15px;
+    font-weight:600;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .generate-btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 8px 20px rgba(255,92,77,.25);}
+  .generate-btn:disabled{opacity:.5;cursor:not-allowed;}
+
+  .hint{font-size:12px;color:var(--muted);line-height:1.5;}
+
+  /* ===== AUTH ===== */
+  .auth-box{
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:18px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .auth-box input{
+    background:var(--bg);
+    border:1px solid var(--line);
+    border-radius:8px;
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+    padding:10px 12px;
+    outline:none;
+  }
+  .auth-box input:focus{border-color:var(--coral);}
+  .auth-btn{
+    background:var(--coral);
+    color:#1a0e08;
+    border:none;
+    border-radius:8px;
+    padding:10px;
+    font-weight:600;
+    font-size:13px;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+  }
+  .auth-toggle{
+    background:none;
+    border:none;
+    color:var(--muted);
+    font-size:12px;
+    cursor:pointer;
+    text-decoration:underline;
+    text-align:left;
+    font-family:'Inter',sans-serif;
+    padding:0;
+  }
+  .auth-error{
+    color:var(--coral);
+    font-size:12px;
+  }
+  .account-bar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:12px 14px;
+    font-size:12px;
+  }
+  .account-bar .email{color:var(--text);font-weight:500;}
+  .account-bar .usage{color:var(--muted);margin-top:2px;}
+  .account-bar .logout{
+    background:none;
+    border:none;
+    color:var(--muted);
+    font-size:12px;
+    cursor:pointer;
+    text-decoration:underline;
+  }
+  .upgrade-btn{
+    background:var(--yellow);
+    color:#1a0e08;
+    border:none;
+    border-radius:8px;
+    padding:6px 12px;
+    font-size:12px;
+    font-weight:600;
+    cursor:pointer;
+    font-family:'Inter',sans-serif;
+  }
+
+  /* ===== RIGHT PANEL ===== */
+  .stage{
+    padding:48px 56px;
+    overflow-y:auto;
+  }
+  @media (max-width:880px){.stage{padding:32px 24px;}}
+
+  .stage-empty{
+    height:80vh;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    justify-content:center;
+    max-width:520px;
+  }
+  .stage-empty .eyebrow-num{
+    font-size:100px;
+    font-family:'Bricolage Grotesque',sans-serif;
+    font-weight:700;
+    color:var(--surface-2);
+    line-height:1;
+  }
+  .stage-empty h2{font-size:32px;margin-top:8px;}
+  .stage-empty p{color:var(--muted);margin-top:12px;font-size:15px;line-height:1.6;}
+
+  .results-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    margin-bottom:32px;
+    border-bottom:1px solid var(--line);
+    padding-bottom:20px;
+  }
+  .results-head h2{font-size:26px;}
+  .results-head .meta{color:var(--muted);font-size:13px;margin-top:4px;}
+
+  .layout-results{
+    display:grid;
+    grid-template-columns:1fr 320px;
+    gap:40px;
+    align-items:start;
+  }
+  @media (max-width:1180px){.layout-results{grid-template-columns:1fr;}}
+
+  .captions-list{display:flex;flex-direction:column;gap:16px;}
+  .caption-card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:20px 22px;
+  }
+  .caption-card .label{
+    font-size:11px;
+    color:var(--coral);
+    font-weight:600;
+    margin-bottom:8px;
+  }
+  .caption-card p{font-size:15px;line-height:1.6;}
+  .hashtags{
+    margin-top:12px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+  }
+  .hashtag{
+    font-size:12px;
+    color:var(--yellow);
+    background:rgba(255,200,87,.1);
+    padding:4px 9px;
+    border-radius:100px;
+  }
+  .card-actions{
+    margin-top:14px;
+    display:flex;
+    gap:10px;
+  }
+  .copy-btn{
+    background:transparent;
+    border:1px solid var(--line);
+    color:var(--muted);
+    font-size:12px;
+    padding:6px 12px;
+    border-radius:100px;
+    cursor:pointer;
+    font-family:'Inter',sans-serif;
+    transition:all .15s ease;
+  }
+  .copy-btn:hover{border-color:var(--coral);color:var(--text);}
+
+  .card-panel{
+    position:sticky;
+    top:48px;
+  }
+  .card-panel .label{
+    font-size:12px;
+    color:var(--muted);
+    margin-bottom:12px;
+  }
+  canvas{
+    width:100%;
+    border-radius:16px;
+    border:1px solid var(--line);
+    display:block;
+  }
+  .download-btn{
+    width:100%;
+    margin-top:14px;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    color:var(--text);
+    padding:12px;
+    border-radius:10px;
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    font-weight:500;
+    cursor:pointer;
+  }
+  .download-btn:hover{border-color:var(--yellow);}
+
+  .loading{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color:var(--muted);
+    font-size:14px;
+  }
+  .spinner{
+    width:14px;height:14px;
+    border:2px solid var(--line);
+    border-top-color:var(--coral);
+    border-radius:50%;
+    animation:spin .7s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .error-box{
+    background:rgba(255,92,77,.1);
+    border:1px solid var(--coral);
+    color:var(--text);
+    padding:14px 16px;
+    border-radius:10px;
+    font-size:13px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="panel">
+    <div class="brand">
+      <div class="mark"></div>
+      <h1>Postcraft</h1>
+    </div>
+    <p class="tagline">Type a rough idea. Get a caption, hashtags, and a matching post graphic — ready in one shot.</p>
+
+    <div id="authArea"></div>
+
+    <div class="field">
+      <label for="topic">WHAT'S THE POST ABOUT</label>
+      <textarea id="topic" placeholder="e.g. gym progress after 3 months, or a coffee shop I visited today"></textarea>
+    </div>
+
+    <div class="field">
+      <label>NICHE / VIBE</label>
+      <div class="vibe-grid" id="vibeGrid"></div>
+    </div>
+
+    <div class="field">
+      <label for="niche">YOUR CONTENT NICHE (optional)</label>
+      <input type="text" id="niche" placeholder="e.g. fitness, travel, food, fashion">
+    </div>
+
+    <button class="generate-btn" id="genBtn">Generate post</button>
+    <p class="hint">Free prototype — runs on Claude. In the real app this becomes your daily content engine.</p>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="stage-empty">
+      <div class="eyebrow-num">01</div>
+      <h2>Your next post starts here</h2>
+      <p>Drop in a topic on the left, pick a vibe, and Postcraft will write three caption options with hashtags — plus design a matching graphic you can post straight away.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ===== BACKEND CONFIG =====
+// Replace with your deployed backend URL (e.g. https://postcraft-server.onrender.com)
+const BACKEND_URL = "http://localhost:3001";
+
+// ===== ANONYMOUS DEVICE ID (no login required) =====
+function getDeviceId(){
+  let id = localStorage.getItem('postcraft_device_id');
+  if(!id){
+    id = 'dev_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+    localStorage.setItem('postcraft_device_id', id);
+  }
+  return id;
+}
+const deviceId = getDeviceId();
+let currentUsage = null; // { plan, usedToday, dailyLimit }
+
+const authArea = document.getElementById('authArea');
+
+function renderUsageBar(){
+  if(!currentUsage){
+    authArea.innerHTML = '';
+    return;
+  }
+  authArea.innerHTML = `
+    <div class="account-bar">
+      <div>
+        <div class="usage">${usageLabel(currentUsage)}</div>
+      </div>
+      ${currentUsage.plan !== 'pro' ? '<button class="upgrade-btn" id="upgradeBtn">Upgrade</button>' : ''}
+    </div>
+  `;
+  const upgradeBtn = document.getElementById('upgradeBtn');
+  if(upgradeBtn) upgradeBtn.onclick = handleUpgrade;
+}
+
+function usageLabel(u){
+  if(u.plan === 'pro') return 'Pro plan — unlimited';
+  return `${u.usedToday}/${u.dailyLimit} free posts used today`;
+}
+
+async function refreshUsage(){
+  try{
+    const res = await fetch(BACKEND_URL + '/api/usage', {
+      headers: { 'X-Device-Id': deviceId }
+    });
+    if(res.ok){
+      currentUsage = await res.json();
+      renderUsageBar();
+    }
+  }catch(err){
+    console.error(err);
+  }
+}
+
+async function handleUpgrade(){
+  // NOTE: placeholder call. Before going live, wire this to your Razorpay/Stripe
+  // checkout, and only call /api/upgrade after a real payment confirms.
+  try{
+    const res = await fetch(BACKEND_URL + '/api/upgrade', {
+      method: 'POST',
+      headers: { 'X-Device-Id': deviceId }
+    });
+    const data = await res.json();
+    if(res.ok){
+      currentUsage.plan = data.plan;
+      renderUsageBar();
+    }
+  }catch(err){
+    console.error(err);
+  }
+}
+
+refreshUsage();
+
+const VIBES = [
+  {id:'aesthetic', label:'Aesthetic', bg1:'#E8D9C5', bg2:'#B98D6F', text:'#2A1B0F'},
+  {id:'bold', label:'Bold', bg1:'#12101C', bg2:'#FF5C4D', text:'#FFFFFF'},
+  {id:'playful', label:'Playful', bg1:'#FFC857', bg2:'#FF8A65', text:'#1A0E08'},
+  {id:'motivational', label:'Motivational', bg1:'#1B2A4A', bg2:'#3E5C9A', text:'#FFFFFF'},
+];
+let selectedVibe = VIBES[0].id;
+
+const vibeGrid = document.getElementById('vibeGrid');
+VIBES.forEach(v=>{
+  const btn = document.createElement('button');
+  btn.className = 'vibe-btn' + (v.id===selectedVibe ? ' active' : '');
+  btn.textContent = v.label;
+  btn.onclick = ()=>{
+    selectedVibe = v.id;
+    document.querySelectorAll('.vibe-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  };
+  vibeGrid.appendChild(btn);
+});
+
+const genBtn = document.getElementById('genBtn');
+const stage = document.getElementById('stage');
+const topicEl = document.getElementById('topic');
+const nicheEl = document.getElementById('niche');
+
+genBtn.addEventListener('click', generate);
+
+async function generate(){
+  const topic = topicEl.value.trim();
+  if(!topic){
+    topicEl.focus();
+    topicEl.style.borderColor = '#FF5C4D';
+    setTimeout(()=>topicEl.style.borderColor='', 800);
+    return;
+  }
+  const niche = nicheEl.value.trim() || 'general lifestyle';
+  const vibe = VIBES.find(v=>v.id===selectedVibe);
+
+  genBtn.disabled = true;
+  genBtn.textContent = 'Generating…';
+  stage.innerHTML = `<div style="height:80vh;display:flex;align-items:center;justify-content:center;">
+    <div class="loading"><div class="spinner"></div> Writing your post…</div>
+  </div>`;
+
+  try{
+    const response = await fetch(BACKEND_URL + '/api/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Device-Id': deviceId
+      },
+      body: JSON.stringify({ topic, niche, vibeLabel: vibe.label })
+    });
+    const parsed = await response.json();
+
+    if(!response.ok){
+      if(parsed.upgradeRequired){
+        stage.innerHTML = `<div style="max-width:480px;margin-top:40px;">
+          <div class="error-box">${escapeHtml(parsed.error)}</div>
+          <button class="auth-btn" style="margin-top:14px;" id="upgradeFromLimit">Upgrade to Pro</button>
+        </div>`;
+        document.getElementById('upgradeFromLimit').onclick = async ()=>{
+          await handleUpgrade();
+          stage.innerHTML = `<div class="stage-empty"><div class="eyebrow-num">01</div><h2>You're on Pro now</h2><p>Generate as many posts as you like.</p></div>`;
+        };
+      } else {
+        stage.innerHTML = `<div style="max-width:480px;margin-top:40px;">
+          <div class="error-box">${escapeHtml(parsed.error || 'Something went wrong.')}</div>
+        </div>`;
+      }
+      return;
+    }
+
+    renderResults(parsed, vibe, niche);
+    await refreshUsage();
+  }catch(err){
+    stage.innerHTML = `<div style="max-width:480px;margin-top:40px;">
+      <div class="error-box">Can't reach the server. Check that your backend is running and BACKEND_URL is set correctly.</div>
+    </div>`;
+    console.error(err);
+  }finally{
+    genBtn.disabled = false;
+    genBtn.textContent = 'Generate post';
+  }
+}
+
+function renderResults(data, vibe, niche){
+  stage.innerHTML = `
+    <div class="results-head">
+      <div>
+        <h2>Your post options</h2>
+        <div class="meta">${niche} · ${vibe.label} vibe</div>
+      </div>
+    </div>
+    <div class="layout-results">
+      <div class="captions-list" id="captionsList"></div>
+      <div class="card-panel">
+        <div class="label">POST GRAPHIC</div>
+        <canvas id="cardCanvas" width="1000" height="1250"></canvas>
+        <button class="download-btn" id="downloadBtn">Download graphic</button>
+      </div>
+    </div>
+  `;
+
+  const list = document.getElementById('captionsList');
+  data.captions.forEach((cap, i)=>{
+    const card = document.createElement('div');
+    card.className = 'caption-card';
+    card.innerHTML = `
+      <div class="label">OPTION ${i+1}</div>
+      <p>${escapeHtml(cap)}</p>
+      <div class="hashtags">${data.hashtags.map(h=>`<span class="hashtag">#${escapeHtml(h.replace(/^#/,''))}</span>`).join('')}</div>
+      <div class="card-actions">
+        <button class="copy-btn">Copy caption + tags</button>
+      </div>
+    `;
+    card.querySelector('.copy-btn').onclick = (e)=>{
+      const tags = data.hashtags.map(h=>'#'+h.replace(/^#/,'')).join(' ');
+      navigator.clipboard.writeText(cap + '\n\n' + tags);
+      e.target.textContent = 'Copied ✓';
+      setTimeout(()=>e.target.textContent='Copy caption + tags', 1500);
+    };
+    list.appendChild(card);
+  });
+
+  drawCard(data.cardline, vibe);
+  document.getElementById('downloadBtn').onclick = ()=>{
+    const canvas = document.getElementById('cardCanvas');
+    const link = document.createElement('a');
+    link.download = 'postcraft-graphic.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  };
+}
+
+function drawCard(line, vibe){
+  const canvas = document.getElementById('cardCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  const grad = ctx.createLinearGradient(0,0,W,H);
+  grad.addColorStop(0, vibe.bg1);
+  grad.addColorStop(1, vibe.bg2);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0,0,W,H);
+
+  // subtle corner mark for brand feel
+  ctx.fillStyle = vibe.text;
+  ctx.globalAlpha = 0.55;
+  ctx.font = '600 26px Inter, sans-serif';
+  ctx.fillText('POSTCRAFT', 60, 80);
+  ctx.globalAlpha = 1;
+
+  // main line, wrapped
+  ctx.fillStyle = vibe.text;
+  ctx.font = '700 72px "Bricolage Grotesque", sans-serif';
+  ctx.textBaseline = 'middle';
+  const words = line.split(' ');
+  const maxWidth = W - 140;
+  let lines = [], current = '';
+  words.forEach(w=>{
+    const test = current ? current + ' ' + w : w;
+    if(ctx.measureText(test).width > maxWidth && current){
+      lines.push(current);
+      current = w;
+    } else {
+      current = test;
+    }
+  });
+  if(current) lines.push(current);
+
+  const lineHeight = 84;
+  const startY = H/2 - ((lines.length-1)*lineHeight)/2;
+  lines.forEach((l,i)=>{
+    ctx.fillText(l, 70, startY + i*lineHeight);
+  });
+
+  ctx.globalAlpha = 0.5;
+  ctx.font = '500 22px Inter, sans-serif';
+  ctx.fillText('@yourhandle', 60, H - 60);
+  ctx.globalAlpha = 1;
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+</script>
+</body>
+</html>
